@@ -9,7 +9,7 @@
 }
 
 .action-button {
-  margin-top: 50px;
+  margin-top: 50px !important;
   margin-bottom: 16px;
   background-color: #1976d2;
   color: white;
