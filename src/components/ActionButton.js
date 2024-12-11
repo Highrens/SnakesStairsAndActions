@@ -19,7 +19,7 @@ const ActionButton = () => {
 
     interval = setInterval(() => {
       setCurrentAction(getRandomAction());
-    }, 1);
+    }, 10);
 
     setTimeout(() => {
       clearInterval(interval);
