@@ -1,12 +1,11 @@
 // src/components/ActionButton.js
-"use client"
-import { useState } from 'react';
-import { Button, Typography, Box } from '@mui/material';
-import { actions } from '@/app/constants/actions';
-import './ActionButton.css';  // Импорт CSS-файла
+"use client";
+import { useState } from "react";
+import { actions } from "@/app/constants/actions";
+import "./ActionButton.css"; // Импорт CSS-файла
 
 const ActionButton = () => {
-  const [currentAction, setCurrentAction] = useState('');
+  const [currentAction, setCurrentAction] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const getRandomAction = () => {
@@ -30,23 +29,16 @@ const ActionButton = () => {
   };
 
   return (
-    <Box className="action-container">
-      <Button
-        variant="contained"
-        color="primary"
-        size="large"
-        onClick={handleClick}
-        className="action-button"
-      >
+    <div className="action-container">
+      <button onClick={handleClick} className="action-button">
         Действие!
-      </Button>
-      <Typography
-        variant="h6"
-        className={isLoading ? 'loading-text' : 'final-text'}
-      >
-        {isLoading ? getRandomAction() : currentAction}
-      </Typography>
-    </Box>
+      </button>
+      <div className="text-container">
+        <p className={isLoading ? "loading-text text" : "final-text text"}>
+          {isLoading ? getRandomAction() : currentAction}
+        </p>
+      </div>
+    </div>
   );
 };
 
