@@ -38,6 +38,7 @@ const ActionButton = () => {
           {isLoading ? getRandomAction() : currentAction}
         </p>
       </div>
+      
     </div>
   );
 };
