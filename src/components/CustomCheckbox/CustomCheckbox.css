@@ -1,0 +1,83 @@
+/* Контейнер для чекбокса */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+  
+  /* Основной стиль для кастомного чекбокса */
+  .custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-left: 30px;
+    color: #333;
+    font-size: 16px;
+  }
+  
+  /* Скрываем стандартный чекбокс */
+  .custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .checkbox-container label {
+
+    font-size: 24px;
+    font-weight: bold;
+    color: #b6defa;
+  }
+
+  /* Стиль для кастомного маркера */
+  .custom-checkbox .checkmark {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Состояние при наведении */
+  .custom-checkbox:hover .checkmark {
+    background-color: #e6e6e6;
+    border-color: #888;
+  }
+  
+  /* Состояние "выбрано" */
+  .custom-checkbox input:checked ~ .checkmark {
+    background-color: #1976d2;
+    border-color: #1976d2;
+  }
+  
+  /* Добавляем галочку */
+  .custom-checkbox .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  /* Отображаем галочку, если чекбокс выбран */
+  .custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  /* Стилизация галочки */
+  .custom-checkbox .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  

@@ -10,13 +10,14 @@
 
 .action-button {
   margin-top: 50px;
-  padding: 10px;
+  padding: 20px;
   border-radius: 10px;
   border: #688aac 2px solid;
   margin-bottom: 16px;
   background-color: #1976d2;
   color: white;
   font-weight: bold;
+  font-size: 30px;
   transition: all .1s;
 }
 
@@ -37,6 +38,10 @@
   background-color:#222c34;
 }
 
+.text-container:last-child{
+  height: auto;
+}
+
 .loading-text {
   font-size: 24px;
   font-weight: bold;
@@ -48,3 +53,5 @@
   font-weight: bold;
   color: #b6defa;
 }
+
+
