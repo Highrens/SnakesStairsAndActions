@@ -1,7 +1,7 @@
 // src/components/ActionButton.js
 "use client";
 import { useEffect, useState } from "react";
-import { actions } from "@/app/constants/actions";
+import { actions } from "@/constants/actions";
 import "./ActionButton.css"; // Импорт CSS-файла
 import Checkbox from "./Checkbox/Checkbox";
 import Button from "./Button/Button";
@@ -17,11 +17,16 @@ const ActionButton = () => {
   }, []);
 
   const getRandomAction = () => {
+    if (remainingActions.length == 0) return {id: -1, description: "Все действия закончились :("}
     const randomIndex = Math.floor(Math.random() * remainingActions.length);
     return remainingActions[randomIndex];
   };
 
-  const handleClick = () => {
+  const restoreActions = () => {
+    setRemainingActions(actions.actions);
+  };
+
+  const handleActionButtonClick = () => {
     setIsLoading(true);
     let interval;
 
@@ -51,7 +56,7 @@ const ActionButton = () => {
 
   return (
     <div className="action-container">
-      <Button label="Действие!" onClick={handleClick} />
+      <Button label="Действие!" onClick={handleActionButtonClick} />
       <div className="text-container">
         <p className={isLoading ? "loading-text text" : "final-text text"}>
           {isLoading ? getRandomAction().description : currentAction}
@@ -64,6 +69,11 @@ const ActionButton = () => {
           checked={removeUsedActions}
           onChange={handleCheckboxChange}
         />
+        {removeUsedActions ? (
+          <Button label="Восстановить все действия!" onClick={restoreActions} />
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
