@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import "./CustomCheckbox.css"; // Стили для чекбокса
+import "./Checkbox.css"; // Стили для чекбокса
 
-const CustomCheckbox = ({ label, checked, onChange }) => {
+const Checkbox = ({ label, checked, onChange }) => {
   return (
     <div className="checkbox-container">
       <label className="custom-checkbox">
@@ -18,4 +18,4 @@ const CustomCheckbox = ({ label, checked, onChange }) => {
   );
 };
 
-export default CustomCheckbox;
+export default Checkbox;

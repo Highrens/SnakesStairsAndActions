@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { actions } from "@/app/constants/actions";
 import "./ActionButton.css"; // Импорт CSS-файла
-import CustomCheckbox from "./CustomCheckbox/CustomCheckbox";
+import Checkbox from "./Checkbox/Checkbox";
+import Button from "./Button/Button";
 
 const ActionButton = () => {
   const [currentAction, setCurrentAction] = useState("");
@@ -34,7 +35,10 @@ const ActionButton = () => {
 
       setCurrentAction(currentAction.description);
 
-      if (removeUsedActions) setRemainingActions( remainingActions.filter((action) => action.id !== currentAction.id) );
+      if (removeUsedActions)
+        setRemainingActions(
+          remainingActions.filter((action) => action.id !== currentAction.id)
+        );
 
       setIsLoading(false);
     }, 1000);
@@ -47,9 +51,7 @@ const ActionButton = () => {
 
   return (
     <div className="action-container">
-      <button onClick={handleClick} className="action-button">
-        Действие!
-      </button>
+      <Button label="Действие!" onClick={handleClick} />
       <div className="text-container">
         <p className={isLoading ? "loading-text text" : "final-text text"}>
           {isLoading ? getRandomAction().description : currentAction}
@@ -57,11 +59,11 @@ const ActionButton = () => {
       </div>
 
       <div className="text-container">
-      <CustomCheckbox
-        label="Удалять использованные действия"
-        checked={removeUsedActions}
-        onChange={handleCheckboxChange}
-      />
+        <Checkbox
+          label="Удалять использованные действия"
+          checked={removeUsedActions}
+          onChange={handleCheckboxChange}
+        />
       </div>
     </div>
   );

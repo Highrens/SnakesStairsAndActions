@@ -1,0 +1,20 @@
+.action-button {
+    margin-top: 50px;
+    padding: 20px;
+    border-radius: 10px;
+    border: #688aac 2px solid;
+    margin-bottom: 16px;
+    background-color: #1976d2;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+    transition: all .1s;
+  }
+  
+  .action-button:hover {
+    background-color: #1565c0;
+  }
+  
+  .action-button:active{ 
+    transform: scale(.8);
+  }
