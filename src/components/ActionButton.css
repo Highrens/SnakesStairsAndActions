@@ -8,6 +8,8 @@
   border-radius: 8px;
 }
 
+
+
 .text-container {
   display: flex;
   flex-direction: column;
@@ -16,11 +18,14 @@
   border-radius: 8px;
   padding: 20px;
   width: 100%;
-  /* min-height: 300px; */
-  background-color:#222c34;
+  background-color: #222c34;
 }
 
-.text-container:last-child{
+.text-container_loading {
+  min-height: 300px;
+}
+
+.text-container:last-child {
   height: auto;
 }
 
@@ -35,5 +40,3 @@
   font-weight: bold;
   color: #b6defa;
 }
-
-

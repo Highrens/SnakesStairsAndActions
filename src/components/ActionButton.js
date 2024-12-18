@@ -57,7 +57,7 @@ const ActionButton = () => {
   return (
     <div className="action-container">
       <Button label="Действие!" onClick={handleActionButtonClick} />
-      <div className="text-container">
+      <div className={isLoading ? "text-container text-container_loading" : "text-container"}>
         <p className={isLoading ? "loading-text text" : "final-text text"}>
           {isLoading ? getRandomAction().description : currentAction}
         </p>
