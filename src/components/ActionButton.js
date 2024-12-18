@@ -70,7 +70,7 @@ const ActionButton = () => {
           onChange={handleCheckboxChange}
         />
         {removeUsedActions ? (
-          <Button label="Восстановить все действия!" onClick={restoreActions} />
+          <Button label="Восстановить все действия!" size="m" onClick={restoreActions} />
         ) : (
           <></>
         )}
