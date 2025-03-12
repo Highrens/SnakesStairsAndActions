@@ -1,0 +1,7 @@
+.progress-bar-background {
+    width: 100%;
+    height: 20px;
+    background: #ccc;
+    border-radius: 10px;
+    overflow: 'hidden';
+}

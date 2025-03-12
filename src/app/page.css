@@ -1,3 +1,9 @@
+.page {
+  height: 100%;
+  background-color: gray;
+
+}
+
 .action-container {
   min-height: 100vh;
   display: flex;
@@ -10,6 +16,7 @@
   padding: 20px;
   border-radius: 8px;
 }
+
 
 .text-container {
   display: flex;
@@ -24,7 +31,7 @@
 }
 
 .text-container_loading {
-  min-height: 300px;
+  min-height: 500px;
 }
 
 .text-container:last-child {

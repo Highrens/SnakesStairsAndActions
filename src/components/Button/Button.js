@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import "./Button.css"; // Стили для чекбокса
+import "./Button.css"; // Стили
 
 const Button = ({ label, onClick, size = "l" }) => {
   const buttonClass = `action-button action-button_${size}`;

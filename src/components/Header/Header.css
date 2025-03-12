@@ -1,0 +1,10 @@
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    background-color: #2a2e39;
+    border: #1e1d22 4px solid;
+  }
