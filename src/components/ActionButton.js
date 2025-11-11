@@ -1,82 +1,109 @@
-// src/components/ActionButton.js
 "use client";
-import { useEffect, useState } from "react";
-import { actions, actionsShort } from "@/constants/actions";
-import "./ActionButton.css"; // Импорт CSS-файла
-import Checkbox from "./Checkbox/Checkbox";
+import { useEffect, useState, useCallback } from "react";
+import { actions2 } from "@/constants/actions";
+import "./ActionButton.css";
 import Button from "./Button/Button";
-import IconTray from "./IconsTray/IconsTray";
 
 const ActionButton = () => {
-  const [currentAction, setCurrentAction] = useState("");
+  const [remainingActions, setRemainingActions] = useState([]);
+  const [currentAction, setCurrentAction] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [remainingActions, setRemainingActions] = useState("");
   const [removeUsedActions, setRemoveUsedActions] = useState(false);
-
-  const [icons, setIcons] = useState([]);
+  const [showImage, setShowImage] = useState(false);
 
   useEffect(() => {
-    setRemainingActions(actions.actions);
+    setRemainingActions(actions2.actions);
   }, []);
 
-  const getRandomAction = () => {
-    if (remainingActions.length == 0) return {id: -1, description: "Все действия закончились :("}
+  const getRandomAction = useCallback(() => {
+    if (!remainingActions.length)
+      return { id: -1, description: "Все действия закончились :(" };
     const randomIndex = Math.floor(Math.random() * remainingActions.length);
     return remainingActions[randomIndex];
-  };
+  }, [remainingActions]);
 
-  const restoreActions = () => {
-    setRemainingActions(actions.actions);
-  };
-
-  const handleActionButtonClick = () => {
+  const handleActionButtonClick = useCallback(() => {
     setIsLoading(true);
-    let interval;
-
-    interval = setInterval(() => {
-      setCurrentAction(getRandomAction().description);
-    }, 10);
+    setResult("");
+    setSelectedOption(null);
+    setShowImage(false);
 
     setTimeout(() => {
-      clearInterval(interval);
-      const currentAction = getRandomAction();
+      const chosen = getRandomAction();
+      setCurrentAction(chosen);
 
-      setCurrentAction(currentAction.description);
+      if (removeUsedActions)
+        setRemainingActions((prev) => prev.filter((a) => a.id !== chosen.id));
 
-      if (removeUsedActions) setRemainingActions( remainingActions.filter((action) => action.id !== currentAction.id));
-      if (currentAction.icon && !icons.includes(currentAction)) setIcons((prevIcons) => [...prevIcons, currentAction]);
       setIsLoading(false);
-    }, 1000);
-  };
+      setTimeout(() => setShowImage(true), 100); // плавное появление картинки
+    }, 300);
+  }, [getRandomAction, removeUsedActions]);
 
-  // Обработчик изменения чекбокса
-  const handleCheckboxChange = () => {
-    setRemoveUsedActions(!removeUsedActions);
-  };
+  const handleOptionSelect = useCallback((option) => {
+    setSelectedOption(option);
+    setShowImage(false); // картинка исчезает при выборе
+    const randomResult =
+      option.results[Math.floor(Math.random() * option.results.length)];
+
+    setIsLoading(true);
+    setTimeout(() => {
+      setResult(randomResult);
+      setIsLoading(false);
+    }, 300);
+  }, []);
+
+  const restoreActions = useCallback(() => {
+    setRemainingActions(actions2.actions);
+  }, []);
 
   return (
     <div className="action-container">
-      {icons.length == 0 ? <></> : <IconTray IconList={icons} setIcons={setIcons} />}
-
       <Button label="Действие!" onClick={handleActionButtonClick} />
-      <div className={isLoading ? "text-container text-container_loading" : "text-container"}>
-        <p className={isLoading ? "loading-text text" : "final-text text"}>
-          {isLoading ? getRandomAction().description : currentAction}
-        </p>
-      </div>
 
-      <div className="text-container">
-        <Checkbox
-          label="Удалять использованные действия"
-          checked={removeUsedActions}
-          onChange={handleCheckboxChange}
-        />
-        {removeUsedActions ? (
-          <Button label="Восстановить все действия!" size="m" onClick={restoreActions} />
-        ) : (
-          <></>
+      <div className={`text-container ${isLoading ? "text-container_loading" : ""}`}>
+        <p className={`text ${isLoading ? "loading-text" : "final-text"}`}>
+          {isLoading
+            ? "..."
+            : result ||
+            currentAction?.description ||
+            "Нажми, чтобы получить действие"}
+        </p>
+        {/* 🖼️ Картинка события */}
+        {currentAction && showImage && currentAction.image && (
+          <img
+            src={currentAction.image}
+            alt="event illustration"
+            className="action-image"
+          />
         )}
       </div>
+
+
+
+      {/* 🔘 Опции выбора */}
+      {currentAction && !result && !isLoading && (
+        <div className="options-container fade-in">
+          {currentAction.options?.map((option, idx) => (
+            <Button
+              key={idx}
+              label={option.name}
+              size="m"
+              onClick={() => handleOptionSelect(option)}
+            />
+          ))}
+        </div>
+      )}
+
+      {removeUsedActions && (
+        <Button
+          label="Восстановить все действия!"
+          size="m"
+          onClick={restoreActions}
+        />
+      )}
     </div>
   );
 };
