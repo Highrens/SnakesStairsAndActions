@@ -190,7 +190,7 @@ export const actions2 = {
     "actions": [
         {
             "id": 1,
-            "image": "/images/portal.png",
+            "image": "../../public/images/portal.png",
             "description": "Перед тобой неожиданно открылся портал!",
             "options": [
                 {
@@ -212,7 +212,7 @@ export const actions2 = {
         },
         {
             "id": 2,
-            "image": "/images/goblins.png",
+            "image": "../../public/images/goblins.png",
             "description": "Ты наткнулся на гоблинов!",
             "options": [
                 {
@@ -240,7 +240,7 @@ export const actions2 = {
         },
         {
             "id": 3,
-            "image": "/images/treasure_chest.png",
+            "image": "../../public/images/treasure_chest.png",
             "description": "Ты нашёл древний сундук, покрытый мхом.",
             "options": [
                 {
@@ -263,7 +263,7 @@ export const actions2 = {
         },
         {
             "id": 4,
-            "image": "/images/mystic_fountain.png",
+            "image": "../../public/images/mystic_fountain.png",
             "description": "Ты находишь странный фонтан с мерцающей водой.",
             "options": [
                 {
@@ -291,7 +291,7 @@ export const actions2 = {
         },
         {
             "id": 5,
-            "image": "/images/strange_merchant.png",
+            "image": "../../public/images/strange_merchant.png",
             "description": "К тебе подходит странный торговец в капюшоне.",
             "options": [
                 {
@@ -312,7 +312,7 @@ export const actions2 = {
         },
         {
             "id": 6,
-            "image": "/images/trap_pit.png",
+            "image": "../../public/images/trap_pit.png",
             "description": "Под ногами треснула земля — ловушка!",
             "options": [
                 {
@@ -333,7 +333,7 @@ export const actions2 = {
         },
         {
             "id": 7,
-            "image": "/images/ancient_runes.png",
+            "image": "../../public/images/ancient_runes.png",
             "description": "На стене высечены древние руны.",
             "options": [
                 {
@@ -354,7 +354,7 @@ export const actions2 = {
         },
         {
             "id": 8,
-            "image": "/images/lost_traveler.png",
+            "image": "../../public/images/lost_traveler.png",
             "description": "Ты встречаешь потерявшегося путешественника.",
             "options": [
                 {
@@ -375,7 +375,7 @@ export const actions2 = {
         },
         {
             "id": 9,
-            "image": "/images/forest_spirit.png",
+            "image": "../../public/images/forest_spirit.png",
             "description": "Из тумана появляется лесной дух.",
             "options": [
                 {
@@ -396,7 +396,7 @@ export const actions2 = {
         },
         {
             "id": 10,
-            "image": "/images/haunted_temple.png",
+            "image": "../../public/images/haunted_temple.png",
             "description": "Ты входишь в заброшенный храм, где царит тишина.",
             "options": [
                 {
@@ -424,7 +424,7 @@ export const actions2 = {
         },
         {
             "id": 11,
-            "image": "/images/meteor.png",
+            "image": "../../public/images/meteor.png",
             "description": "На небе вспыхивает метеор и падает неподалёку!",
             "options": [
                 {
@@ -445,7 +445,7 @@ export const actions2 = {
         },
         {
             "id": 12,
-            "image": "/images/enchanted_cat.png",
+            "image": "../../public/images/enchanted_cat.png",
             "description": "Перед тобой появляется загадочный кот в шляпе.",
             "options": [
                 {
