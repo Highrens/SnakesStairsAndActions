@@ -17,6 +17,17 @@
   transform: scale(.8);
 }
 
+.action-button_disabled,
+.action-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.action-button_disabled:active,
+.action-button:disabled:active {
+  transform: none;
+}
+
 .action-button_l {
   padding: 20px;
   font-size: 30px;
