@@ -27,6 +27,44 @@
   font-weight: 600;
 }
 
+.seed-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #d7deea;
+}
+
+.seed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.seed-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.seed-input {
+  width: 180px;
+  border: 2px solid #4f5668;
+  border-radius: 8px;
+  background: #202530;
+  color: #d7deea;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.seed-description {
+  margin: 0;
+  font-size: 14px;
+  color: #a0b1c5;
+}
+
 .panel-tabs {
   display: flex;
   gap: 8px;

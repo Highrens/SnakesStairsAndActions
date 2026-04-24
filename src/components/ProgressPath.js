@@ -5,9 +5,13 @@ import "./ProgressPath.css";
 const MIN_CELL = 1;
 const MAX_CELL = 49;
 
-const ProgressPath = ({ position = MIN_CELL }) => {
+const ProgressPath = ({ position = MIN_CELL, actionCells = [] }) => {
   const safePosition = Math.min(Math.max(position, MIN_CELL), MAX_CELL);
   const progressPercent = ((safePosition - MIN_CELL) / (MAX_CELL - MIN_CELL)) * 100;
+  const actionMarkers = actionCells.map((cell) => ({
+    cell,
+    percent: ((cell - MIN_CELL) / (MAX_CELL - MIN_CELL)) * 100,
+  }));
 
   return (
     <aside className="progress-path" aria-label="Путь игрока от старта к финишу">
@@ -19,6 +23,15 @@ const ProgressPath = ({ position = MIN_CELL }) => {
       <div className="path-track-wrap">
         <span className="path-dot path-dot_top" />
         <div className="path-track" />
+        {actionMarkers.map((marker) => (
+          <span
+            key={marker.cell}
+            className="path-action-cell"
+            style={{ bottom: `${marker.percent}%` }}
+            aria-label={`Клетка действия ${marker.cell}`}
+            title={`Клетка действия ${marker.cell}`}
+          />
+        ))}
         <div className="player-token" style={{ bottom: `${progressPercent}%` }} aria-label={`Позиция игрока: ${safePosition}`}>
           🧙
         </div>

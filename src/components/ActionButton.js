@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { actions2 } from "@/constants/actions";
 import { DEFAULT_DICE_CONFIG } from "@/constants/dice";
 import "./ActionButton.css";
@@ -13,6 +13,32 @@ const FINISH_POSITION = 49;
 
 const clampToPath = (position) =>
   Math.max(START_POSITION, Math.min(FINISH_POSITION, position));
+
+const generateRandomSeed = () =>
+  String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
+
+const createSeededRng = (seed) => {
+  let value = Number(seed.split("").reduce((acc, digit) => acc * 10 + Number(digit), 0)) || 1;
+  return () => {
+    value = (value * 9301 + 49297) % 233280;
+    return value / 233280;
+  };
+};
+
+const generateActionCells = (seed) => {
+  if (!/^[0-9]{8}$/.test(seed)) return [];
+  const rng = createSeededRng(seed);
+  const count = Math.max(1, Math.min(20, Math.floor(rng() * 20) + 1));
+  const positions = new Set();
+
+  while (positions.size < count) {
+    const position = Math.floor(rng() * (FINISH_POSITION - START_POSITION - 1)) + START_POSITION + 1;
+    if (position === START_POSITION || position === FINISH_POSITION) continue;
+    positions.add(position);
+  }
+
+  return [...positions].sort((a, b) => a - b);
+};
 
 const normalizeOutcome = (option) => {
   if (Array.isArray(option.outcomes) && option.outcomes.length > 0) {
@@ -80,6 +106,7 @@ const ActionButton = () => {
     [basePath]
   );
 
+  const [seed, setSeed] = useState("00000000");
   const [remainingActions, setRemainingActions] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -101,6 +128,8 @@ const ActionButton = () => {
     enableLuckySeven: false,
   });
   const normalizedActions = useMemo(() => normalizeActions(actions2.actions), []);
+  const actionCells = useMemo(() => generateActionCells(seed), [seed]);
+  const lastTriggeredCell = useRef(null);
 
   const diceConfig = {
     ...DEFAULT_DICE_CONFIG,
@@ -117,12 +146,66 @@ const ActionButton = () => {
     setRemainingActions(normalizedActions);
   }, [normalizedActions]);
 
+  useEffect(() => {
+    setSeed(generateRandomSeed());
+  }, []);
+
+  useEffect(() => {
+    setRemainingActions(normalizedActions);
+    setCurrentAction(null);
+    setResult("");
+    setSelectedOption(null);
+    setShowImage(false);
+    setPendingDecision(null);
+    setPendingRoll(null);
+    setRollInputValue("");
+    setPlayerPosition(START_POSITION);
+    setPlayerStats({
+      health: 3,
+      gold: 3,
+      curses: 0,
+    });
+    setDiceContext({
+      enableLuckySeven: false,
+    });
+    lastTriggeredCell.current = null;
+  }, [normalizedActions, seed]);
+
   const getRandomAction = useCallback(() => {
     if (!remainingActions.length)
       return { id: -1, description: "Все действия закончились :(" };
     const randomIndex = Math.floor(Math.random() * remainingActions.length);
     return remainingActions[randomIndex];
   }, [remainingActions]);
+
+  const isActionCell = useCallback(
+    (position) => actionCells.includes(position),
+    [actionCells]
+  );
+
+  const triggerActionCellEvent = useCallback(
+    (position) => {
+      if (!isActionCell(position)) return;
+
+      setIsLoading(true);
+      setResult("");
+      setSelectedOption(null);
+      setShowImage(false);
+      setPendingDecision(null);
+      setPendingRoll(null);
+      setRollInputValue("");
+
+      setTimeout(() => {
+        const chosen = getRandomAction();
+        setCurrentAction(chosen);
+        if (removeUsedActions)
+          setRemainingActions((prev) => prev.filter((a) => a.id !== chosen.id));
+        setIsLoading(false);
+        setTimeout(() => setShowImage(true), 100);
+      }, 300);
+    },
+    [getRandomAction, isActionCell, removeUsedActions]
+  );
 
   const handleActionButtonClick = useCallback(() => {
     setIsLoading(true);
@@ -282,6 +365,14 @@ const ActionButton = () => {
     [movePlayerBy]
   );
 
+  useEffect(() => {
+    if (playerPosition === lastTriggeredCell.current) return;
+    if (isActionCell(playerPosition)) {
+      lastTriggeredCell.current = playerPosition;
+      triggerActionCellEvent(playerPosition);
+    }
+  }, [playerPosition, isActionCell, triggerActionCellEvent]);
+
   const decisionState = useMemo(
     () => getDecisionState(pendingDecision, playerStats),
     [pendingDecision, playerStats]
@@ -304,6 +395,34 @@ const ActionButton = () => {
           onRollComplete={handleDiceRollComplete}
         />
         <p className="player-position">Позиция игрока: {playerPosition}/49</p>
+        <div className="seed-panel">
+          <label className="seed-label" htmlFor="seed-input">
+            SEED (8 цифр):
+          </label>
+          <div className="seed-row">
+            <input
+              id="seed-input"
+              className="seed-input"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={8}
+              value={seed}
+              onChange={(event) => {
+                const value = event.target.value.replace(/\D/g, "").slice(0, 8);
+                setSeed(value.padStart(8, "0"));
+              }}
+            />
+            <Button
+              label="Новый SEED"
+              size="s"
+              onClick={() => setSeed(generateRandomSeed())}
+            />
+          </div>
+          <p className="seed-description">
+            Клеток действия: {actionCells.length} — {actionCells.join(", ")}
+          </p>
+        </div>
         <div className="panel-tabs">
           <button
             type="button"
@@ -425,7 +544,7 @@ const ActionButton = () => {
         )}
       </div>
 
-      <ProgressPath position={playerPosition} />
+      <ProgressPath position={playerPosition} actionCells={actionCells} />
     </div>
   );
 };
