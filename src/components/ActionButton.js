@@ -7,7 +7,6 @@ import Button from "./Button/Button";
 import Checkbox from "./Checkbox/Checkbox";
 import DiceRoller from "./DiceRoller";
 import ProgressPath from "./ProgressPath";
-import Image from "next/image";
 
 const START_POSITION = 1;
 const FINISH_POSITION = 49;
@@ -72,6 +71,15 @@ const getDecisionState = (decision, playerStats) => {
 };
 
 const ActionButton = () => {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const withBasePath = useCallback(
+    (assetPath = "") => {
+      if (!assetPath) return "";
+      return assetPath.startsWith("/") ? `${basePath}${assetPath}` : `${basePath}/${assetPath}`;
+    },
+    [basePath]
+  );
+
   const [remainingActions, setRemainingActions] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -285,7 +293,10 @@ const ActionButton = () => {
   }, [pendingRoll, rollInputValue]);
 
   return (
-    <div className="action-container">
+    <div
+      className="action-container"
+      style={{ "--action-bg-image": `url("${withBasePath("/background.png")}")` }}
+    >
       <div className="action-main">
         <DiceRoller
           config={diceConfig}
@@ -328,7 +339,7 @@ const ActionButton = () => {
             {/* 🖼️ Картинка события */}
             {currentAction && showImage && currentAction.image && (
               <img
-                src={currentAction.image}
+                src={withBasePath(currentAction.image)}
                 alt="event illustration"
                 className="action-image"
               />
