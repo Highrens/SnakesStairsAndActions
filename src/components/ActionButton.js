@@ -17,6 +17,12 @@ const clampToPath = (position) =>
 const generateRandomSeed = () =>
   String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
 
+const GITHUB_PAGES_URL =
+  process.env.NEXT_PUBLIC_GITHUB_PAGES_URL ||
+  "https://highrens.github.io/SnakesStairsAndActions/";
+
+const isValidSeed = (value) => /^[0-9]{8}$/.test(value);
+
 const createSeededRng = (seed) => {
   let value = Number(seed.split("").reduce((acc, digit) => acc * 10 + Number(digit), 0)) || 1;
   return () => {
@@ -107,6 +113,7 @@ const ActionButton = () => {
   );
 
   const [seed, setSeed] = useState("00000000");
+  const [shareUrl, setShareUrl] = useState("");
   const [remainingActions, setRemainingActions] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -147,8 +154,15 @@ const ActionButton = () => {
   }, [normalizedActions]);
 
   useEffect(() => {
-    setSeed(generateRandomSeed());
+    const querySeed = typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("seed")
+      : null;
+    setSeed(isValidSeed(querySeed) ? querySeed : generateRandomSeed());
   }, []);
+
+  useEffect(() => {
+    setShareUrl(`${GITHUB_PAGES_URL}?seed=${encodeURIComponent(seed)}`);
+  }, [seed]);
 
   useEffect(() => {
     setRemainingActions(normalizedActions);
@@ -395,34 +409,6 @@ const ActionButton = () => {
           onRollComplete={handleDiceRollComplete}
         />
         <p className="player-position">Позиция игрока: {playerPosition}/49</p>
-        <div className="seed-panel">
-          <label className="seed-label" htmlFor="seed-input">
-            SEED (8 цифр):
-          </label>
-          <div className="seed-row">
-            <input
-              id="seed-input"
-              className="seed-input"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={8}
-              value={seed}
-              onChange={(event) => {
-                const value = event.target.value.replace(/\D/g, "").slice(0, 8);
-                setSeed(value.padStart(8, "0"));
-              }}
-            />
-            <Button
-              label="Новый SEED"
-              size="s"
-              onClick={() => setSeed(generateRandomSeed())}
-            />
-          </div>
-          <p className="seed-description">
-            Клеток действия: {actionCells.length} — {actionCells.join(", ")}
-          </p>
-        </div>
         <div className="panel-tabs">
           <button
             type="button"
@@ -438,15 +424,76 @@ const ActionButton = () => {
           >
             Игрок
           </button>
+          <button
+            type="button"
+            className={`panel-tab ${activeTab === "seed" ? "panel-tab_active" : ""}`}
+            onClick={() => setActiveTab("seed")}
+          >
+            SEED
+          </button>
         </div>
-        <Button label="Действие!" onClick={handleActionButtonClick} />
-        <Checkbox
-          label="Убирать уже использованные события"
-          checked={removeUsedActions}
-          onChange={(e) => setRemoveUsedActions(e.target.checked)}
-        />
+        {activeTab !== "seed" && <Button label="Действие!" onClick={handleActionButtonClick} />}
+        {activeTab !== "seed" && (
+          <Checkbox
+            label="Убирать уже использованные события"
+            checked={removeUsedActions}
+            onChange={(e) => setRemoveUsedActions(e.target.checked)}
+          />
+        )}
 
-        {activeTab === "action" ? (
+        {activeTab === "seed" ? (
+          <div className="seed-tab-panel fade-in">
+            <label className="seed-label" htmlFor="seed-input">
+              SEED (8 цифр)
+            </label>
+            <div className="seed-row">
+              <input
+                id="seed-input"
+                className="seed-input"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                value={seed}
+                onChange={(event) => {
+                  const value = event.target.value.replace(/\D/g, "").slice(0, 8);
+                  setSeed(value.padStart(8, "0"));
+                }}
+              />
+              <Button
+                label="Новый SEED"
+                size="s"
+                onClick={() => setSeed(generateRandomSeed())}
+              />
+            </div>
+            <p className="seed-description">
+              Клеток действия: {actionCells.length} — {actionCells.join(", ")}
+            </p>
+            <div className="share-row">
+              <input
+                className="share-url"
+                type="text"
+                readOnly
+                value={shareUrl}
+                aria-label="Ссылка для общего доступа"
+              />
+              <Button
+                label="Копировать ссылку"
+                size="s"
+                onClick={() => navigator.clipboard.writeText(shareUrl)}
+              />
+            </div>
+            <div className="qr-row">
+              <img
+                className="qr-code"
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                  shareUrl
+                )}`}
+                alt="QR код для ссылки"
+              />
+            </div>
+          </div>
+        ) : activeTab === "action" ? (
           <div className={`text-container ${isLoading ? "text-container_loading" : ""}`}>
             <p className={`text ${isLoading ? "loading-text" : "final-text"}`}>
               {isLoading
