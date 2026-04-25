@@ -8,10 +8,11 @@ export const DEFAULT_DICE_SIDES = [1, 2, 3, 4, 5, 6];
 export const DEFAULT_DICE_CONFIG = {
   baseSides: DEFAULT_DICE_SIDES,
   customOutcomes: [],
+  filter: () => true,
 };
 
 const toWeightedPool = (config, context = {}) => {
-  const basePool = (config.baseSides || []).map((value) => ({ value, weight: 1 }));
+  const basePool = (config.baseSides || []).filter(config.filter(context)).map((value) => ({ value, weight: 1 }));
   const customPool = (config.customOutcomes || [])
     .filter((outcome) => (typeof outcome.isEnabled === "function" ? outcome.isEnabled(context) : true))
     .map((outcome) => ({

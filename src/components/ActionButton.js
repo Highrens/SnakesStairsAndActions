@@ -4,7 +4,6 @@ import { actions2 } from "@/constants/actions";
 import { DEFAULT_DICE_CONFIG } from "@/constants/dice";
 import "./ActionButton.css";
 import Button from "./Button/Button";
-import Checkbox from "./Checkbox/Checkbox";
 import DiceRoller from "./DiceRoller";
 import ProgressPath from "./ProgressPath";
 
@@ -114,12 +113,14 @@ const ActionButton = () => {
 
   const [seed, setSeed] = useState("00000000");
   const [shareUrl, setShareUrl] = useState("");
+  const [gameStatus, setGameStatus] = useState("playing");
+  const [lossRollInput, setLossRollInput] = useState("");
+  const [lossFeedback, setLossFeedback] = useState("");
   const [remainingActions, setRemainingActions] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [removeUsedActions, setRemoveUsedActions] = useState(false);
   const [showImage, setShowImage] = useState(false);
   const [pendingDecision, setPendingDecision] = useState(null);
   const [pendingRoll, setPendingRoll] = useState(null);
@@ -133,6 +134,8 @@ const ActionButton = () => {
   });
   const [diceContext, setDiceContext] = useState({
     enableLuckySeven: false,
+    onlyEven: false,
+    onlyOdd: false,
   });
   const normalizedActions = useMemo(() => normalizeActions(actions2.actions), []);
   const actionCells = useMemo(() => generateActionCells(seed), [seed]);
@@ -147,6 +150,11 @@ const ActionButton = () => {
         isEnabled: (context) => context.enableLuckySeven,
       },
     ],
+    filter: (context) => (value) => {
+      if (context.onlyEven && value % 2 !== 0) return false;
+      if (context.onlyOdd && value % 2 === 0) return false;
+      return true;
+    },
   };
 
   useEffect(() => {
@@ -182,8 +190,21 @@ const ActionButton = () => {
     setDiceContext({
       enableLuckySeven: false,
     });
+    setGameStatus("playing");
+    setLossRollInput("");
+    setLossFeedback("");
     lastTriggeredCell.current = null;
   }, [normalizedActions, seed]);
+
+  useEffect(() => {
+    if (playerPosition >= FINISH_POSITION) {
+      setGameStatus("win");
+      return;
+    }
+    if (playerStats.health <= 0) {
+      setGameStatus("lost");
+    }
+  }, [playerPosition, playerStats.health]);
 
   const getRandomAction = useCallback(() => {
     if (!remainingActions.length)
@@ -212,13 +233,11 @@ const ActionButton = () => {
       setTimeout(() => {
         const chosen = getRandomAction();
         setCurrentAction(chosen);
-        if (removeUsedActions)
-          setRemainingActions((prev) => prev.filter((a) => a.id !== chosen.id));
         setIsLoading(false);
         setTimeout(() => setShowImage(true), 100);
       }, 300);
     },
-    [getRandomAction, isActionCell, removeUsedActions]
+    [getRandomAction, isActionCell]
   );
 
   const handleActionButtonClick = useCallback(() => {
@@ -233,14 +252,10 @@ const ActionButton = () => {
     setTimeout(() => {
       const chosen = getRandomAction();
       setCurrentAction(chosen);
-
-      if (removeUsedActions)
-        setRemainingActions((prev) => prev.filter((a) => a.id !== chosen.id));
-
       setIsLoading(false);
       setTimeout(() => setShowImage(true), 100); // плавное появление картинки
     }, 300);
-  }, [getRandomAction, removeUsedActions]);
+  }, [getRandomAction]);
 
   // Отдельный метод для будущих эффектов (например, телепортов).
   const movePlayerBy = useCallback((steps) => {
@@ -368,24 +383,43 @@ const ActionButton = () => {
     setRollInputValue("");
   }, [applyOutcomeEffects, pendingRoll, rollInputValue]);
 
-  const restoreActions = useCallback(() => {
-    setRemainingActions(normalizedActions);
-  }, [normalizedActions]);
+
 
   const handleDiceRollComplete = useCallback(
     (value) => {
+      if (gameStatus !== "playing") return;
       movePlayerBy(value);
     },
-    [movePlayerBy]
+    [gameStatus, movePlayerBy]
   );
+
+  const handleDeathRollConfirm = useCallback(() => {
+    const rolledValue = Number(lossRollInput);
+    if (!Number.isInteger(rolledValue) || rolledValue < 1 || rolledValue > 20) return;
+
+    if (rolledValue === 20) {
+      setPlayerStats((prev) => ({ ...prev, health: 3 }));
+      movePlayerBy(3);
+      setGameStatus("playing");
+      setLossFeedback("Великолепно! Ты воскрес с 3 здоровьем и продвинулся на 3 клетки.");
+    } else if (rolledValue > 10) {
+      setPlayerStats((prev) => ({ ...prev, health: 1 }));
+      setGameStatus("playing");
+      setLossFeedback("Отлично! Ты воскрес с 1 здоровьем.");
+    } else {
+      setLossFeedback("Неудача. Попробуй снова бросить D20.");
+    }
+    setLossRollInput("");
+  }, [lossRollInput, movePlayerBy]);
 
   useEffect(() => {
     if (playerPosition === lastTriggeredCell.current) return;
+    if (gameStatus !== "playing") return;
     if (isActionCell(playerPosition)) {
       lastTriggeredCell.current = playerPosition;
       triggerActionCellEvent(playerPosition);
     }
-  }, [playerPosition, isActionCell, triggerActionCellEvent]);
+  }, [playerPosition, isActionCell, triggerActionCellEvent, gameStatus]);
 
   const decisionState = useMemo(
     () => getDecisionState(pendingDecision, playerStats),
@@ -403,11 +437,20 @@ const ActionButton = () => {
       style={{ "--action-bg-image": `url("${withBasePath("/background.png")}")` }}
     >
       <div className="action-main">
-        <DiceRoller
-          config={diceConfig}
-          context={diceContext}
-          onRollComplete={handleDiceRollComplete}
-        />
+        <div className="dice-and-stats">
+          <div className="player-stats">
+            <div>❤️ {playerStats.health}</div>
+            <div>🪙 {playerStats.gold}</div>
+            <div>☠️ {playerStats.curses}</div>
+          </div>
+          <DiceRoller
+            config={diceConfig}
+            context={diceContext}
+            onRollComplete={handleDiceRollComplete}
+          />
+          
+        </div>
+
         <p className="player-position">Позиция игрока: {playerPosition}/49</p>
         <div className="panel-tabs">
           <button
@@ -432,14 +475,10 @@ const ActionButton = () => {
             SEED
           </button>
         </div>
-        {activeTab !== "seed" && <Button label="Действие!" onClick={handleActionButtonClick} />}
-        {activeTab !== "seed" && (
-          <Checkbox
-            label="Убирать уже использованные события"
-            checked={removeUsedActions}
-            onChange={(e) => setRemoveUsedActions(e.target.checked)}
-          />
+        {activeTab !== "seed" && gameStatus === "playing" && (
+          <Button label="Действие!" onClick={handleActionButtonClick} />
         )}
+
 
         {activeTab === "seed" ? (
           <div className="seed-tab-panel fade-in">
@@ -493,14 +532,47 @@ const ActionButton = () => {
               />
             </div>
           </div>
-        ) : activeTab === "action" ? (
+        ) : gameStatus === "win" ? (
+          <div className="status-panel fade-in">
+            <h2>Победа!</h2>
+            <p>Ты добрался до финиша.</p>
+            <Button
+              label="Новая игра с новым SEED"
+              size="m"
+              onClick={() => setSeed(generateRandomSeed())}
+            />
+          </div>
+        ) : gameStatus === "lost" ? (
+          <div className="status-panel fade-in">
+            <h2>Поражение</h2>
+            <p>Здоровье достигло 0. Воскресни броском D20.</p>
+            <div className="roll-check-row">
+              <input
+                type="number"
+                className="roll-input"
+                min={1}
+                max={20}
+                value={lossRollInput}
+                onChange={(event) => setLossRollInput(event.target.value)}
+                placeholder="1-20"
+              />
+              <Button
+                label="Проверить"
+                size="m"
+                onClick={handleDeathRollConfirm}
+                disabled={!Number.isInteger(Number(lossRollInput)) || Number(lossRollInput) < 1 || Number(lossRollInput) > 20}
+              />
+            </div>
+            {lossFeedback && <p className="decision-warning">{lossFeedback}</p>}
+          </div>
+        ) : gameStatus !== "playing" ? null : activeTab === "action" ? (
           <div className={`text-container ${isLoading ? "text-container_loading" : ""}`}>
             <p className={`text ${isLoading ? "loading-text" : "final-text"}`}>
               {isLoading
                 ? "..."
                 : result ||
-                  currentAction?.description ||
-                  "Нажми, чтобы получить действие"}
+                currentAction?.description ||
+                "Нажми, чтобы получить действие"}
             </p>
             {/* 🖼️ Картинка события */}
             {currentAction && showImage && currentAction.image && (
@@ -582,13 +654,7 @@ const ActionButton = () => {
           </div>
         )}
 
-        {removeUsedActions && (
-          <Button
-            label="Восстановить все действия!"
-            size="m"
-            onClick={restoreActions}
-          />
-        )}
+
       </div>
 
       <ProgressPath position={playerPosition} actionCells={actionCells} />

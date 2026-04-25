@@ -19,6 +19,28 @@
   align-items: center;
 }
 
+.dice-and-stats {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  margin-top: 14px;
+  border-radius: 10px;
+  background: #233146;
+  padding: 16px;
+  border: 2px solid #1e2531;
+}
+
+.player-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
 .player-position {
   margin-top: -4px;
   margin-bottom: 8px;
@@ -255,6 +277,35 @@
   opacity: 0;
   transform: translateY(10px);
   animation: fadeIn 0.6s ease forwards;
+}
+
+.status-panel {
+  width: 100%;
+  padding: 24px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #25334b 0%, #1b2436 100%);
+  border: 2px solid #2f3b52;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.status-panel h2 {
+  margin: 0;
+  font-size: 30px;
+  color: #f9f3cc;
+}
+
+.status-panel p {
+  margin: 0;
+  color: #d7deea;
+  font-size: 16px;
+}
+
+.status-panel .roll-check-row {
+  justify-content: center;
 }
 
 @keyframes fadeIn {
