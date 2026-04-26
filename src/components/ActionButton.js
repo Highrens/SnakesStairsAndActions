@@ -9,6 +9,13 @@ import ProgressPath from "./ProgressPath";
 
 const START_POSITION = 1;
 const FINISH_POSITION = 49;
+const MAX_CHARACTER_POINTS = 8;
+const BASE_SETUP_STATS = {
+  health: 1,
+  dexterity: 1,
+  strength: 1,
+  charisma: 1,
+};
 
 const clampToPath = (position) =>
   Math.max(START_POSITION, Math.min(FINISH_POSITION, position));
@@ -127,8 +134,10 @@ const ActionButton = () => {
   const [rollInputValue, setRollInputValue] = useState("");
   const [activeTab, setActiveTab] = useState("action");
   const [playerPosition, setPlayerPosition] = useState(START_POSITION);
+  const [isCharacterCreated, setIsCharacterCreated] = useState(false);
+  const [setupStats, setSetupStats] = useState(BASE_SETUP_STATS);
   const [playerStats, setPlayerStats] = useState({
-    health: 3,
+    ...BASE_SETUP_STATS,
     gold: 3,
     curses: 0,
   });
@@ -137,6 +146,40 @@ const ActionButton = () => {
     onlyEven: false,
     onlyOdd: false,
   });
+
+  const totalSetupPoints = useMemo(
+    () => Object.values(setupStats).reduce((sum, value) => sum + value, 0),
+    [setupStats]
+  );
+
+  const remainingSetupPoints = MAX_CHARACTER_POINTS - totalSetupPoints;
+  const isSetupComplete = remainingSetupPoints === 0;
+  const displayedHealth = isCharacterCreated ? playerStats.health : setupStats.health;
+
+  const handleAdjustSetupStat = useCallback(
+    (stat, delta) => {
+      setSetupStats((prev) => {
+        const nextValue = (prev[stat] || 0) + delta;
+        if (nextValue < 1) return prev;
+        if (delta > 0 && remainingSetupPoints <= 0) return prev;
+        return {
+          ...prev,
+          [stat]: nextValue,
+        };
+      });
+    },
+    [remainingSetupPoints]
+  );
+
+  const handleConfirmCharacterSetup = useCallback(() => {
+    if (!isSetupComplete) return;
+    setPlayerStats((prev) => ({
+      ...prev,
+      ...setupStats,
+    }));
+    setIsCharacterCreated(true);
+  }, [isSetupComplete, setupStats]);
+
   const normalizedActions = useMemo(() => normalizeActions(actions2.actions), []);
   const actionCells = useMemo(() => generateActionCells(seed), [seed]);
   const lastTriggeredCell = useRef(null);
@@ -182,13 +225,17 @@ const ActionButton = () => {
     setPendingRoll(null);
     setRollInputValue("");
     setPlayerPosition(START_POSITION);
+    setSetupStats(BASE_SETUP_STATS);
     setPlayerStats({
-      health: 3,
+      ...BASE_SETUP_STATS,
       gold: 3,
       curses: 0,
     });
+    setIsCharacterCreated(false);
     setDiceContext({
       enableLuckySeven: false,
+      onlyEven: false,
+      onlyOdd: false,
     });
     setGameStatus("playing");
     setLossRollInput("");
@@ -220,7 +267,7 @@ const ActionButton = () => {
 
   const triggerActionCellEvent = useCallback(
     (position) => {
-      if (!isActionCell(position)) return;
+      if (!isActionCell(position) || !isCharacterCreated) return;
 
       setIsLoading(true);
       setResult("");
@@ -241,6 +288,7 @@ const ActionButton = () => {
   );
 
   const handleActionButtonClick = useCallback(() => {
+    if (!isCharacterCreated) return;
     setIsLoading(true);
     setResult("");
     setSelectedOption(null);
@@ -255,7 +303,7 @@ const ActionButton = () => {
       setIsLoading(false);
       setTimeout(() => setShowImage(true), 100); // плавное появление картинки
     }, 300);
-  }, [getRandomAction]);
+  }, [getRandomAction, isCharacterCreated]);
 
   // Отдельный метод для будущих эффектов (например, телепортов).
   const movePlayerBy = useCallback((steps) => {
@@ -387,10 +435,10 @@ const ActionButton = () => {
 
   const handleDiceRollComplete = useCallback(
     (value) => {
-      if (gameStatus !== "playing") return;
+      if (gameStatus !== "playing" || !isCharacterCreated) return;
       movePlayerBy(value);
     },
-    [gameStatus, movePlayerBy]
+    [gameStatus, movePlayerBy, isCharacterCreated]
   );
 
   const handleDeathRollConfirm = useCallback(() => {
@@ -439,7 +487,7 @@ const ActionButton = () => {
       <div className="action-main">
         <div className="dice-and-stats">
           <div className="player-stats">
-            <div>❤️ {playerStats.health}</div>
+            <div>❤️ {displayedHealth}</div>
             <div>🪙 {playerStats.gold}</div>
             <div>☠️ {playerStats.curses}</div>
           </div>
@@ -475,7 +523,7 @@ const ActionButton = () => {
             SEED
           </button>
         </div>
-        {activeTab !== "seed" && gameStatus === "playing" && (
+        {activeTab !== "seed" && gameStatus === "playing" && isCharacterCreated && (
           <Button label="Действие!" onClick={handleActionButtonClick} />
         )}
 
@@ -530,6 +578,59 @@ const ActionButton = () => {
                 )}`}
                 alt="QR код для ссылки"
               />
+            </div>
+          </div>
+        ) : !isCharacterCreated ? (
+          <div className="setup-panel fade-in">
+            <p className="stats-title">Настройка персонажа</p>
+            <p className="points-remaining">Осталось очков: {remainingSetupPoints}</p>
+            <div className="setup-rows">
+              {[
+                { key: "health", label: "Здоровье", icon: "❤️" },
+                { key: "dexterity", label: "Ловкость", icon: "🤸" },
+                { key: "strength", label: "Сила", icon: "💪" },
+                { key: "charisma", label: "Харизма", icon: "😎" },
+              ].map(({ key, label, icon }) => (
+                <div key={key} className="setup-row">
+                  <div className="setup-label">
+                    <span className="setup-icon">{icon}</span>
+                    <span>{label}</span>
+                  </div>
+                  <div className="setup-controls">
+                    <button
+                      type="button"
+                      className="adjust-button"
+                      onClick={() => handleAdjustSetupStat(key, -1)}
+                      disabled={setupStats[key] <= 1}
+                    >
+                      −
+                    </button>
+                    <span className="setup-value">{setupStats[key]}</span>
+                    <button
+                      type="button"
+                      className="adjust-button"
+                      onClick={() => handleAdjustSetupStat(key, 1)}
+                      disabled={remainingSetupPoints <= 0}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <p className="setup-note">
+                Распределите ровно {MAX_CHARACTER_POINTS} очков между характеристиками.
+              </p>
+              <Button
+                label="Подтвердить персонажа"
+                size="m"
+                onClick={handleConfirmCharacterSetup}
+                disabled={!isSetupComplete}
+              />
+              {!isSetupComplete && (
+                <p className="decision-warning">
+                  Нужно распределить все очки, минимум 1 на каждую характеристику.
+                </p>
+              )}
             </div>
           </div>
         ) : gameStatus === "win" ? (
@@ -634,9 +735,12 @@ const ActionButton = () => {
         ) : (
           <div className="stats-container fade-in">
             <p className="stats-title">Характеристики игрока</p>
-            <p className="stats-row">Здоровье: {playerStats.health}</p>
-            <p className="stats-row">Золото: {playerStats.gold}</p>
-            <p className="stats-row">Проклятия: {playerStats.curses}</p>
+            <p className="stats-row">❤️ Здоровье: {playerStats.health}</p>
+            <p className="stats-row">🤸 Ловкость: {playerStats.dexterity}</p>
+            <p className="stats-row">💪 Сила: {playerStats.strength}</p>
+            <p className="stats-row">😎 Харизма: {playerStats.charisma}</p>
+            <p className="stats-row">🪙 Золото: {playerStats.gold}</p>
+            <p className="stats-row">☠️ Проклятия: {playerStats.curses}</p>
           </div>
         )}
 
