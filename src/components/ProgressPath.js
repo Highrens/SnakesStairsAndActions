@@ -1,22 +1,20 @@
 "use client";
 
 import "./ProgressPath.css";
+import { START_POSITION, FINISH_POSITION } from "../constants/gameConfig";
 
-const MIN_CELL = 1;
-const MAX_CELL = 49;
-
-const ProgressPath = ({ position = MIN_CELL, actionCells = [] }) => {
-  const safePosition = Math.min(Math.max(position, MIN_CELL), MAX_CELL);
-  const progressPercent = ((safePosition - MIN_CELL) / (MAX_CELL - MIN_CELL)) * 100;
+const ProgressPath = ({ position = START_POSITION, actionCells = [] }) => {
+  const safePosition = Math.min(Math.max(position, START_POSITION), FINISH_POSITION);
+  const progressPercent = ((safePosition - START_POSITION) / (FINISH_POSITION - START_POSITION)) * 100;
   const actionMarkers = actionCells.map((cell) => ({
     cell,
-    percent: ((cell - MIN_CELL) / (MAX_CELL - MIN_CELL)) * 100,
+    percent: ((cell - START_POSITION) / (FINISH_POSITION - START_POSITION)) * 100,
   }));
 
   return (
     <aside className="progress-path" aria-label="Путь игрока от старта к финишу">
       <div className="path-header">
-        <span className="path-number">49</span>
+        <span className="path-number">{FINISH_POSITION}</span>
         <span className="path-text">Финиш</span>
       </div>
 
@@ -39,7 +37,7 @@ const ProgressPath = ({ position = MIN_CELL, actionCells = [] }) => {
       </div>
 
       <div className="path-header path-header_bottom">
-        <span className="path-number">1</span>
+        <span className="path-number">{START_POSITION}</span>
         <span className="path-text">Старт</span>
       </div>
     </aside>
