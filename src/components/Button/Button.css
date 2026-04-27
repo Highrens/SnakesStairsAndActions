@@ -1,26 +1,31 @@
 .action-button {
   margin-top: 20px;
-  border-radius: 10px;
-  border: #44434d 4px solid;
   margin-bottom: 16px;
-  background-color: #696775;
-  color: white;
-  font-weight: bold;
-  transition: all .1s;
+  padding: 16px 24px;
+  border-radius: 16px;
+  border: 3px solid #1e1d22;
+  background: linear-gradient(180deg, #f8f8f8 0%, #e3e3e3 100%);
+  color: #1f2937;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.action-button:hover {
-  background-color: #696874;
+.action-button:hover:enabled {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
-.action-button:active {
-  transform: scale(.8);
+.action-button:active:enabled {
+  transform: translateY(0) scale(0.98);
 }
 
 .action-button_disabled,
 .action-button:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .action-button_disabled:active,
@@ -29,27 +34,28 @@
 }
 
 .action-button_l {
-  padding: 20px;
+  padding: 20px 32px;
   font-size: 30px;
 }
 
 .action-button_m {
-  padding: 10px;
+  padding: 12px 24px;
   font-size: 20px;
 }
 
 .action-button_s {
-  padding: 5px;
-  font-size: 10px;
-  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 12px;
 }
 
 .action-button_icon {
-  padding: 5px;
+  padding: 8px;
   font-size: 30px;
   margin: 0;
   margin-left: 10px;
 }
-.action-button_icon:first-child{
+
+.action-button_icon:first-child {
   margin-left: 0;
 }

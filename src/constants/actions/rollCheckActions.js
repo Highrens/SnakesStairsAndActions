@@ -11,20 +11,20 @@ export const rollCheckActions = {
                     "name": "Попробовать поговорить",
                     "outcomes": [
                         {
-                            "text": "Брось D20",
+                            "text": "Они злятся! Брось D20 + Харизма",
                             "effects": [],
                             "rollCheck": {
                                 "diceSides": 20,
                                 "confirmLabel": "Подтвердить бросок",
                                 "condition": { "operator": "<", "value": 10 },
-                                "onSuccessText": "Условие выполнено: получаешь 1 урон.",
-                                "onFailText": "Условие не выполнено: урона нет.",
+                                "onSuccessText": "Начинается драка! Ты получаешь 1 урон.",
+                                "onFailText": "Ты убеждаешь их разойтись. Урона нет.",
                                 "onSuccessEffects": [{ "type": "modifyStat", "stat": "health", "value": -1 }],
                                 "onFailEffects": []
                             }
                         },
                         {
-                            "text": "Они предлагают купить зелье лечения! Ты МОЖЕШЬ купить 1 здоровье за 3 золота",
+                            "text": "Они предлагают купить зелье лечения! Ты можешь купить 1 здоровье за 3 золота",
                             "effects": [],
                             "requiresConfirmation": true,
                             "confirmation": {
@@ -50,33 +50,32 @@ export const rollCheckActions = {
                     "name": "Попробовать прокрасться мимо",
                     "outcomes": [
                         {
-                            "text": "Брось D20",
+                            "text": "Брось D20 + Ловкость",
                             "effects": [],
                             "rollCheck": {
                                 "diceSides": 20,
                                 "confirmLabel": "Подтвердить бросок",
-                                "condition": { "operator": "<", "value": 8 },
-                                "onSuccessText": "Условие выполнено: получаешь 1 урон.",
-                                "onFailText": "Условие не выполнено: урона нет.",
+                                "condition": { "operator": ">", "value": 8 },
+                                "onSuccessText": "они не заметили тебя! Ты успешно прокрался мимо.",
+                                "onFailText": "Они заметили тебя и атаковали! Ты получаешь 1 урон.",
                                 "onSuccessEffects": [{ "type": "modifyStat", "stat": "health", "value": -1 }],
                                 "onFailEffects": []
                             }
-                        },
-                        { "text": "Вы удачно прокрались мимо", "effects": [] }
+                        }
                     ]
                 },
                 {
                     "name": "Атаковать их!",
                     "outcomes": [
                         {
-                            "text": "Брось D20",
+                            "text": "Брось D20 + Сила",
                             "effects": [],
                             "rollCheck": {
                                 "diceSides": 20,
                                 "confirmLabel": "Подтвердить бросок",
                                 "condition": { "operator": "<", "value": 8 },
-                                "onSuccessText": "Условие выполнено: получаешь 1 урон.",
-                                "onFailText": "Условие не выполнено: урона нет.",
+                                "onSuccessText": "Ты побеждаешь гоблинов, но получаешь 1 урон в процессе.",
+                                "onFailText": "Ты побеждаешь гоблинов без повреждений!",
                                 "onSuccessEffects": [{ "type": "modifyStat", "stat": "health", "value": -1 }],
                                 "onFailEffects": []
                             }
@@ -94,7 +93,7 @@ export const rollCheckActions = {
                     "name": "Посмотреть товары",
                     "outcomes": [
                         {
-                            "text": "Ты купил редкое зелье! Потрать 3 золота, получи 1 здоровье.",
+                            "text": "Он предлагает купить редкое зелье. 3 золота за 2 здоровья.",
                             "effects": [],
                             "requiresConfirmation": true,
                             "confirmation": {
@@ -104,11 +103,11 @@ export const rollCheckActions = {
                                 "requirements": [
                                     { "stat": "gold", "min": 3, "message": "Недостаточно золота для покупки." }
                                 ],
-                                "onConfirmText": "Ты купил редкое зелье и восстановил 1 здоровье.",
+                                "onConfirmText": "Ты купил редкое зелье и восстановил 2 здоровья.",
                                 "onCancelText": "Ты решил не покупать зелье.",
                                 "onConfirmEffects": [
                                     { "type": "modifyStat", "stat": "gold", "value": -3 },
-                                    { "type": "modifyStat", "stat": "health", "value": 1 }
+                                    { "type": "modifyStat", "stat": "health", "value": 2 }
                                 ],
                                 "onCancelEffects": []
                             }
@@ -121,15 +120,15 @@ export const rollCheckActions = {
                     "outcomes": [
                         { "text": "Он уходит, пробормотав что-то непонятное.", "effects": [] },
                         {
-                            "text": "Брось D20",
+                            "text": "Брось D20 + Харизма",
                             "effects": [],
                             "rollCheck": {
                                 "diceSides": 20,
                                 "confirmLabel": "Подтвердить бросок",
                                 "condition": { "operator": "<", "value": 10 },
-                                "onSuccessText": "Условие выполнено: теряешь 1 здоровье.",
-                                "onFailText": "Условие не выполнено: здоровье не теряется.",
-                                "onSuccessEffects": [{ "type": "modifyStat", "stat": "health", "value": -1 }],
+                                "onSuccessText": "Торговец наложил проклятие. Получи 1 проклятие.",
+                                "onFailText": "Его болтовня была бессмысленной. Ничего не происходит.",
+                                "onSuccessEffects": [{ "type": "modifyStat", "stat": "curses", "value": -1 }],
                                 "onFailEffects": []
                             }
                         }
@@ -147,19 +146,19 @@ export const rollCheckActions = {
                     "outcomes": [
                         { "text": "Он благодарит тебя и делится припасами. Получи +1 золото.", "effects": [{ "type": "modifyStat", "stat": "gold", "value": 1 }] },
                         {
-                            "text": "Брось D20",
+                            "text": "Он нападает! Брось D20 + сила",
                             "effects": [],
                             "rollCheck": {
                                 "diceSides": 20,
                                 "confirmLabel": "Подтвердить бросок",
-                                "condition": { "operator": "<", "value": 10 },
-                                "onSuccessText": "Условие выполнено: теряешь 1 здоровье и 1 золото.",
-                                "onFailText": "Условие не выполнено: потерь нет.",
-                                "onSuccessEffects": [
+                                "condition": { "operator": ">", "value": 10 },
+                                "onSuccessText": "путешественник оказывается слабее тебя и ты уходишь без повреждений.",
+                                "onFailText": "Путешественник сильнее тебя и отбирает твои припасы. Потеряй 1 золото и 1 здоровье.",
+                                "onSuccessEffects": [],
+                                "onFailEffects": [
                                     { "type": "modifyStat", "stat": "health", "value": -1 },
                                     { "type": "modifyStat", "stat": "gold", "value": -1 }
-                                ],
-                                "onFailEffects": []
+                                ]
                             }
                         }
                     ]
@@ -524,7 +523,7 @@ export const rollCheckActions = {
                                 "diceSides": 6,
                                 "confirmLabel": "Проверить",
                                 "condition": { "operator": ">=", "value": 5 },
-                                "onSuccessText": "+2 золота!", 
+                                "onSuccessText": "+2 золота!",
                                 "onFailText": "Ничего не происходит.",
                                 "onSuccessEffects": [{ "type": "modifyStat", "stat": "gold", "value": 2 }],
                                 "onFailEffects": []

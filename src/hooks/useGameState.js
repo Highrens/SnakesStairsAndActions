@@ -20,17 +20,21 @@ export const useGameState = (normalizedActions, seed, setSeed) => {
     onlyEven: false,
     onlyOdd: false,
   });
+  const [rolledPoints, setRolledPoints] = useState(null);
 
   const totalSetupPoints = Object.values(setupStats).reduce((sum, value) => sum + value, 0);
-  const remainingSetupPoints = MAX_CHARACTER_POINTS - totalSetupPoints;
-  const isSetupComplete = remainingSetupPoints === 0;
+  const baseSetupSum = Object.values(BASE_SETUP_STATS).reduce((sum, value) => sum + value, 0);
+  const remainingSetupPoints = rolledPoints !== null ? rolledPoints - (totalSetupPoints - baseSetupSum) : 0;
+  const isSetupComplete = rolledPoints !== null && remainingSetupPoints === 0;
   const displayedHealth = isCharacterCreated ? playerStats.health : setupStats.health;
 
   const handleAdjustSetupStat = useCallback(
     (stat, delta) => {
+      if (rolledPoints === null) return;
       setSetupStats((prev) => {
         const nextValue = (prev[stat] || 0) + delta;
-        if (nextValue < 1) return prev;
+        const minValue = stat === 'health' ? 3 : 0;
+        if (nextValue < minValue) return prev;
         if (delta > 0 && remainingSetupPoints <= 0) return prev;
         return {
           ...prev,
@@ -38,7 +42,7 @@ export const useGameState = (normalizedActions, seed, setSeed) => {
         };
       });
     },
-    [remainingSetupPoints]
+    [remainingSetupPoints, rolledPoints]
   );
 
   const handleConfirmCharacterSetup = useCallback(() => {
@@ -135,6 +139,7 @@ export const useGameState = (normalizedActions, seed, setSeed) => {
     setGameStatus("playing");
     setLossRollInput("");
     setLossFeedback("");
+    setRolledPoints(null);
   }, [normalizedActions, seed]);
 
   useEffect(() => {
@@ -160,6 +165,8 @@ export const useGameState = (normalizedActions, seed, setSeed) => {
     setPlayerStats,
     diceContext,
     setDiceContext,
+    rolledPoints,
+    setRolledPoints,
     totalSetupPoints,
     remainingSetupPoints,
     isSetupComplete,

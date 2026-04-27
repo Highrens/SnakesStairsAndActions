@@ -1,6 +1,7 @@
 import Button from "./Button/Button";
+import Checkbox from "./Checkbox/Checkbox";
 
-const SeedPanel = ({ seed, setSeed, generateRandomSeed, actionCells, shareUrl }) => (
+const SeedPanel = ({ seed, setSeed, generateRandomSeed, actionCells, shareUrl, hideEvents, setHideEvents }) => (
   <div className="seed-tab-panel fade-in">
     <label className="seed-label" htmlFor="seed-input">
       SEED (8 цифр)
@@ -40,6 +41,13 @@ const SeedPanel = ({ seed, setSeed, generateRandomSeed, actionCells, shareUrl })
         label="Копировать ссылку"
         size="s"
         onClick={() => navigator.clipboard.writeText(shareUrl)}
+      />
+    </div>
+    <div className="settings-row">
+      <Checkbox
+        label="Скрыть события"
+        checked={hideEvents}
+        onChange={(e) => setHideEvents(e.target.checked)}
       />
     </div>
     <div className="qr-row">

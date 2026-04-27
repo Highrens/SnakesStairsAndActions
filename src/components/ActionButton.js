@@ -11,6 +11,7 @@ import ActionPanel from "./ActionPanel";
 import StatsPanel from "./StatsPanel";
 import SeedPanel from "./SeedPanel";
 import StatusPanel from "./StatusPanel";
+import Checkbox from "./Checkbox/Checkbox";
 import OptionsContainer from "./OptionsContainer";
 import { useGameState } from "../hooks/useGameState";
 import { useActions } from "../hooks/useActions";
@@ -29,6 +30,7 @@ const ActionButton = () => {
 
   const [seed, setSeed] = useState("00000000");
   const [activeTab, setActiveTab] = useState("action");
+  const [hideEvents, setHideEvents] = useState(false);
 
   const normalizedActions = useMemo(() => normalizeActions(actions2.actions), []);
 
@@ -81,7 +83,7 @@ const ActionButton = () => {
                 <div>🪙 {gameState.playerStats.gold}</div>
                 <div>☠️ {gameState.playerStats.curses}</div>
               </div>
-              <Button label="Действие!" onClick={actions.handleActionButtonClick} />
+            {/* <Button label="Действие!" onClick={actions.handleActionButtonClick} /> */}
               <DiceRoller
                 config={diceConfig}
                 context={gameState.diceContext}
@@ -115,7 +117,7 @@ const ActionButton = () => {
             className={`panel-tab ${activeTab === "seed" ? "panel-tab_active" : ""}`}
             onClick={() => setActiveTab("seed")}
           >
-            SEED
+            Игра
           </button>
         </div>
 
@@ -127,6 +129,8 @@ const ActionButton = () => {
             generateRandomSeed={generateRandomSeed}
             actionCells={actions.actionCells}
             shareUrl={gameState.shareUrl}
+            hideEvents={hideEvents}
+            setHideEvents={setHideEvents}
           />
         ) : !gameState.isCharacterCreated ? (
           <SetupPanel
@@ -135,7 +139,8 @@ const ActionButton = () => {
             handleAdjustSetupStat={gameState.handleAdjustSetupStat}
             handleConfirmCharacterSetup={gameState.handleConfirmCharacterSetup}
             isSetupComplete={gameState.isSetupComplete}
-            maxCharacterPoints={MAX_CHARACTER_POINTS}
+            rolledPoints={gameState.rolledPoints}
+            setRolledPoints={gameState.setRolledPoints}
           />
         ) : gameState.gameStatus === "win" || gameState.gameStatus === "lost" ? (
           <StatusPanel
@@ -174,7 +179,7 @@ const ActionButton = () => {
         />
       </div>
 
-      <ProgressPath position={gameState.playerPosition} actionCells={actions.actionCells} />
+      <ProgressPath position={gameState.playerPosition} actionCells={actions.actionCells} hideEvents={hideEvents} />
     </div>
   );
 };

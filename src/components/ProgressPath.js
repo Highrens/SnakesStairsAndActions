@@ -3,7 +3,7 @@
 import "./ProgressPath.css";
 import { START_POSITION, FINISH_POSITION } from "../constants/gameConfig";
 
-const ProgressPath = ({ position = START_POSITION, actionCells = [] }) => {
+const ProgressPath = ({ position = START_POSITION, actionCells = [], hideEvents = false }) => {
   const safePosition = Math.min(Math.max(position, START_POSITION), FINISH_POSITION);
   const progressPercent = ((safePosition - START_POSITION) / (FINISH_POSITION - START_POSITION)) * 100;
   const actionMarkers = actionCells.map((cell) => ({
@@ -21,7 +21,7 @@ const ProgressPath = ({ position = START_POSITION, actionCells = [] }) => {
       <div className="path-track-wrap">
         <span className="path-dot path-dot_top" />
         <div className="path-track" />
-        {actionMarkers.map((marker) => (
+        {!hideEvents && actionMarkers.map((marker) => (
           <span
             key={marker.cell}
             className="path-action-cell"
